@@ -16,8 +16,9 @@ os.environ.pop("ANTHROPIC_API_KEY", None)
 os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
 
 import pytest  # noqa: E402
-from app.main import app  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
+
+from app.main import app  # noqa: E402
 
 PASSWORD = "Sup3r-secret-pass"
 

@@ -1,3 +1,5 @@
+import uuid
+
 from conftest import MF_PROPERTY, PASSWORD, Session, register
 
 
@@ -51,7 +53,7 @@ def test_logout_revokes_refresh(client):
 
 
 def test_invitation_flow_new_user_and_roles(client, owner):
-    r = owner.post("/api/org/invitations", json={"email": "new.analyst@example.com", "role": "analyst"})
+    r = owner.post("/api/org/invitations", json={"email": f"new.analyst-{uuid.uuid4().hex[:8]}@example.com", "role": "analyst"})
     assert r.status_code == 201, r.text
     token = r.json()["token"]
     preview = client.get(f"/api/invitations/{token}").json()
@@ -67,7 +69,7 @@ def test_invitation_flow_new_user_and_roles(client, owner):
     analyst_id = next(m["user_id"] for m in members if m["role"] == "analyst")
     # Analyst can create deals but not manage members
     assert analyst.post("/api/properties", json=MF_PROPERTY).status_code == 201
-    assert analyst.post("/api/org/invitations", json={"email": "x@example.com"}).status_code == 403
+    assert analyst.post("/api/org/invitations", json={"email": f"x-{uuid.uuid4().hex[:8]}@example.com"}).status_code == 403
     # Downgrade to viewer → read only
     assert owner.patch(f"/api/org/members/{analyst_id}", json={"role": "viewer"}).status_code == 200
     assert analyst.post("/api/properties", json=MF_PROPERTY).status_code == 403
@@ -92,11 +94,11 @@ def test_existing_user_invitation_requires_password(client, owner):
 def test_owner_protections(client, owner):
     assert owner.patch(f"/api/org/members/{owner.user_id}", json={"role": "admin"}).status_code == 409
     assert owner.delete(f"/api/org/members/{owner.user_id}").status_code == 409
-    assert owner.post("/api/org/invitations", json={"email": "o@example.com", "role": "owner"}).status_code == 422
+    assert owner.post("/api/org/invitations", json={"email": f"o-{uuid.uuid4().hex[:8]}@example.com", "role": "owner"}).status_code == 422
 
 
 def test_revoke_invitation(client, owner):
-    inv = owner.post("/api/org/invitations", json={"email": "revoke@example.com"}).json()
+    inv = owner.post("/api/org/invitations", json={"email": f"revoke-{uuid.uuid4().hex[:8]}@example.com"}).json()
     assert owner.delete(f"/api/org/invitations/{inv['id']}").status_code == 204
     assert client.get(f"/api/invitations/{inv['token']}").status_code == 404
 

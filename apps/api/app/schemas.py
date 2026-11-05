@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, computed_field, field_validator
 
 from .models import PROPERTY_STATUSES, ROLES
 from .services.property_types import PROPERTY_TYPES
@@ -107,6 +107,16 @@ class InvitationOut(ORM):
     expires_at: datetime
     accepted_at: datetime | None
     revoked_at: datetime | None
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def status(self) -> str:
+        if self.revoked_at:
+            return "revoked"
+        if self.accepted_at:
+            return "accepted"
+        exp = self.expires_at if self.expires_at.tzinfo else self.expires_at.replace(tzinfo=timezone.utc)
+        return "expired" if exp < datetime.now(timezone.utc) else "pending"
 
 
 class InvitationCreated(InvitationOut):

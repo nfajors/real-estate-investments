@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     stripe_secret_key: str | None = None
     stripe_webhook_secret: str | None = None
     billing_mode: str = "manual"  # manual (dev: owners switch plans directly) | stripe
+    stripe_price_ids: dict[str, str] = Field(default_factory=dict)  # {"professional": "price_..."} (JSON env)
 
     seed_demo_on_register: bool = True
     log_level: str = "INFO"

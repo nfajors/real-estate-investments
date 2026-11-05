@@ -1,8 +1,9 @@
 """Postgres row-level security checks (skipped on SQLite)."""
 
 import pytest
-from app.db import SessionLocal, engine, set_tenant
 from sqlalchemy import text
+
+from app.db import SessionLocal, engine, set_tenant
 
 pytestmark = pytest.mark.skipif(engine.dialect.name != "postgresql", reason="RLS requires PostgreSQL")
 

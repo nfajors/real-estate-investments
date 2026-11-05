@@ -246,7 +246,8 @@ def billing(ctx: OrgContext = Depends(viewer)) -> dict[str, Any]:
     s = get_settings()
     return {
         "plan": ctx.org.plan,
-        "plans": {k: {**v, "features": sorted(v["features"])} for k, v in PLANS.items()},
+        "plans": {k: {**v, "features": sorted(v["features"]), "stripe_price_id": s.stripe_price_ids.get(k)}
+                  for k, v in PLANS.items()},
         "usage": {"deals": deals, "members": members},
         "billing_mode": "stripe" if s.stripe_secret_key and s.billing_mode == "stripe" else "manual",
     }
@@ -259,9 +260,9 @@ def change_plan(body: dict[str, str], ctx: OrgContext = Depends(owner)) -> dict[
         raise HTTPException(422, "Unknown plan")
     s = get_settings()
     if s.billing_mode == "stripe" and s.stripe_secret_key:
-        price = body.get("price_id")
+        price = body.get("price_id") or s.stripe_price_ids.get(plan)
         if not price:
-            raise HTTPException(422, "price_id is required when Stripe billing is enabled")
+            raise HTTPException(422, f"No Stripe price configured for the {plan} plan (AXIOM_STRIPE_PRICE_IDS)")
         origin = get_settings().cors_origins[0]
         resp = httpx.post(
             "https://api.stripe.com/v1/checkout/sessions",

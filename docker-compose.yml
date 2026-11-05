@@ -1,0 +1,50 @@
+# Local full stack: Postgres (RLS) + FastAPI + Next.js.
+#   docker compose up --build    →  http://localhost:3000
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: axiom
+      POSTGRES_USER: axiom_owner
+      POSTGRES_PASSWORD: axiom_owner
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres-init.sql:/docker-entrypoint-initdb.d/10-roles.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U axiom_owner -d axiom"]
+      interval: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      AXIOM_ENVIRONMENT: development
+      AXIOM_DATABASE_URL: postgresql+psycopg://axiom_app:axiom_app@db:5432/axiom
+      AXIOM_MIGRATION_DATABASE_URL: postgresql+psycopg://axiom_owner:axiom_owner@db:5432/axiom
+      AXIOM_DB_APP_ROLE: axiom_app
+      AXIOM_SECRET_KEY: ${AXIOM_SECRET_KEY:-change-me-in-production-0123456789abcdef}
+      AXIOM_CORS_ORIGINS: '["http://localhost:3000"]'
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - storage:/data/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  web:
+    build:
+      context: apps/web
+      args:
+        AXIOM_API_URL: http://api:8000
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
+  storage:

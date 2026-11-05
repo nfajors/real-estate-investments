@@ -130,6 +130,7 @@ def valuation(property_id: uuid.UUID, scenario_id: uuid.UUID | None = None, ctx:
 
 @router.put("/properties/{property_id}/valuation")
 def save_valuation_inputs(property_id: uuid.UUID, body: dict[str, Any], ctx: OrgContext = Depends(analyst)):
+    require_feature(ctx.org, "valuation")
     prop = ctx.get_property(property_id)
     allowed = {"market_cap_rate", "discount_rate", "comps", "cost", "weights"}
     unknown = set(body) - allowed

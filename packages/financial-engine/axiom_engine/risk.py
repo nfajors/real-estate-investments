@@ -10,11 +10,13 @@ from typing import Any
 
 from .underwriting import UnderwritingResult
 
+# Owner-borne operating expense ratios (share of EGI). Industrial and retail are
+# typically net-leased, so most expenses are recovered from tenants.
 EXPENSE_RATIO_BENCHMARKS = {
     "multifamily": 0.45,
-    "industrial": 0.30,
+    "industrial": 0.12,
     "office": 0.45,
-    "retail": 0.35,
+    "retail": 0.20,
     "mixed_use": 0.42,
     "hospitality": 0.70,
     "self_storage": 0.40,

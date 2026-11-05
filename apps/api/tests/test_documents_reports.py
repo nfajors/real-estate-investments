@@ -3,12 +3,14 @@ import json
 import shutil
 import subprocess
 import tempfile
+import uuid
 from pathlib import Path
 
 import openpyxl
 import pytest
-from app.services.demo_docs import offering_memorandum_pdf, rent_roll_workbook
 from pypdf import PdfReader
+
+from app.services.demo_docs import offering_memorandum_pdf, rent_roll_workbook
 
 XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
@@ -127,7 +129,7 @@ def test_upload_validation_and_image(owner, prop):
 def test_viewer_cannot_upload_or_review(client, owner, prop):
     from conftest import PASSWORD, Session
 
-    inv = owner.post("/api/org/invitations", json={"email": "viewer.docs@example.com", "role": "viewer"}).json()
+    inv = owner.post("/api/org/invitations", json={"email": f"viewer.docs-{uuid.uuid4().hex[:8]}@example.com", "role": "viewer"}).json()
     tok = client.post("/api/invitations/accept", json={"token": inv["token"], "name": "V", "password": PASSWORD})
     viewer = Session(client, tok.json()["access_token"], owner.org_id)
     r = viewer.post(f"/api/properties/{prop['id']}/documents", files={"file": ("a.csv", b"a,b\n", "text/csv")})
