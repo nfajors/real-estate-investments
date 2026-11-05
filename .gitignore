@@ -1,0 +1,23 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+# App data
+apps/api/storage/
+apps/api/*.db
+*.db-journal
+.env
+.env.local
+# Test artefacts
+playwright-report/
+test-results/
