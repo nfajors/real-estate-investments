@@ -2,7 +2,6 @@ import time
 
 import numpy_financial as npf
 import pytest
-
 from axiom_engine import AssumptionError, Assumptions, run_underwriting
 from axiom_engine.tvm import pmt, remaining_balance
 from axiom_engine.underwriting import market_gpr, rent_growth_for_year, total_units, year1_gpr

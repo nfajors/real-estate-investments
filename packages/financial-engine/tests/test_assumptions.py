@@ -1,5 +1,4 @@
 import pytest
-
 from axiom_engine import AssumptionError, Assumptions, Loan, run_underwriting
 from axiom_engine.assumptions import resolve_loan_amount
 

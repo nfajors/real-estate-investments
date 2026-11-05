@@ -1,5 +1,4 @@
 import pytest
-
 from axiom_engine import Loan, run_underwriting
 from axiom_engine.debt import build_schedule
 from axiom_engine.development import DevelopmentAssumptions, run_development
