@@ -1,7 +1,9 @@
 # Local full stack: Postgres (RLS) + FastAPI + Next.js.
 #   docker compose up --build    →  http://localhost:3000
+# Services restart automatically whenever Docker starts, until you stop them.
 services:
   db:
+    restart: unless-stopped
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: axiom
@@ -16,6 +18,7 @@ services:
       retries: 20
 
   api:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: apps/api/Dockerfile
@@ -36,6 +39,7 @@ services:
       - "8000:8000"
 
   web:
+    restart: unless-stopped
     build:
       context: apps/web
       args:
